@@ -29,7 +29,7 @@ import type {
 
 export interface AggregatorInterface extends utils.Interface {
   functions: {
-    "deposit(uint256)": FunctionFragment;
+    "deposit(uint8,uint256)": FunctionFragment;
     "rebalance()": FunctionFragment;
     "withdraw()": FunctionFragment;
   };
@@ -40,7 +40,7 @@ export interface AggregatorInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "deposit",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "rebalance", values?: undefined): string;
   encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
@@ -50,7 +50,7 @@ export interface AggregatorInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
-    "Deposit(uint256)": EventFragment;
+    "Deposit(uint8,uint256)": EventFragment;
     "Rebalance(address,address)": EventFragment;
     "Withdrawal(uint256)": EventFragment;
   };
@@ -61,9 +61,10 @@ export interface AggregatorInterface extends utils.Interface {
 }
 
 export interface DepositEventObject {
+  market: number;
   amount: BigNumber;
 }
-export type DepositEvent = TypedEvent<[BigNumber], DepositEventObject>;
+export type DepositEvent = TypedEvent<[number, BigNumber], DepositEventObject>;
 
 export type DepositEventFilter = TypedEventFilter<DepositEvent>;
 
@@ -110,6 +111,7 @@ export interface Aggregator extends BaseContract {
 
   functions: {
     deposit(
+      _market: PromiseOrValue<BigNumberish>,
       weth_amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -124,6 +126,7 @@ export interface Aggregator extends BaseContract {
   };
 
   deposit(
+    _market: PromiseOrValue<BigNumberish>,
     weth_amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -138,6 +141,7 @@ export interface Aggregator extends BaseContract {
 
   callStatic: {
     deposit(
+      _market: PromiseOrValue<BigNumberish>,
       weth_amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -148,8 +152,8 @@ export interface Aggregator extends BaseContract {
   };
 
   filters: {
-    "Deposit(uint256)"(amount?: null): DepositEventFilter;
-    Deposit(amount?: null): DepositEventFilter;
+    "Deposit(uint8,uint256)"(market?: null, amount?: null): DepositEventFilter;
+    Deposit(market?: null, amount?: null): DepositEventFilter;
 
     "Rebalance(address,address)"(from?: null, to?: null): RebalanceEventFilter;
     Rebalance(from?: null, to?: null): RebalanceEventFilter;
@@ -160,6 +164,7 @@ export interface Aggregator extends BaseContract {
 
   estimateGas: {
     deposit(
+      _market: PromiseOrValue<BigNumberish>,
       weth_amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -175,6 +180,7 @@ export interface Aggregator extends BaseContract {
 
   populateTransaction: {
     deposit(
+      _market: PromiseOrValue<BigNumberish>,
       weth_amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

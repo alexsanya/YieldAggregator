@@ -14,7 +14,13 @@ describe("Aggreegator", function () {
 
   it("should deposit weth", async () => {
     const amount = 123;
-    await expect(aggregator.deposit(amount)).to.emit(aggregator, "Deposit");
+    enum Market {
+      AAVE = 1,
+      COMPOUND = 2
+    }
+    await expect(aggregator.deposit(Market.AAVE, amount))
+      .to.emit(aggregator, "Deposit")
+      .withArgs(Market.AAVE, 123);
   });
 
   it("should withdraw weth", async () => {

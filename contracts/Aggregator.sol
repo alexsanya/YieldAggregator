@@ -2,12 +2,15 @@
 pragma solidity ^0.8.9;
 
 contract Aggregator {
-  event Deposit(uint256 amount);
+  enum Market{ AAVE, COMPOUND }
+
+  event Deposit(Market market, uint256 amount);
   event Withdrawal(uint256 amount);
   event Rebalance(address from, address to);
 
-  function deposit(uint256 weth_amount) external {
-    emit Deposit(weth_amount);
+
+  function deposit(Market _market, uint256 weth_amount) external {
+    emit Deposit(_market, weth_amount);
   }
 
   function withdraw() external returns (uint256) {
