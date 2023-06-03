@@ -7,11 +7,14 @@ import "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 import "@aave/core-v3/contracts/interfaces/IPool.sol";
 
 contract Aggregator is Ownable {
-  enum Market{ AAVE, COMPOUND }
+  enum Market{ AAVE, COMPOUND, NONE }
+  enum Protocol{ AAVE, COMPOUND, NONE }
 
   event Deposit(Market market, uint256 amount);
   event Withdrawal(uint256 amount);
   event Rebalance(address from, address to);
+
+  Protocol public fundsDepositedInto = Protocol.NONE;
 
   address public constant AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS = 0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e;
   address public constant WETH_MAINNET_ADDRESS = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
@@ -23,6 +26,7 @@ contract Aggregator is Ownable {
   }
 
   function deposit(Market _market, uint256 weth_amount) external onlyOwner {
+    require(fundsDepositedInto == Protocol.NONE, "You should withdraw before re-deposit");
     weth.transferFrom(msg.sender, address(this), weth_amount);
     if (_market == Market.AAVE) {
       _deposit_to_aave(weth_amount);
@@ -37,15 +41,17 @@ contract Aggregator is Ownable {
     IPool aavePool = IPool(aaveV3PoolAddress);
     weth.approve(address(aavePool), weth_amount);
     aavePool.supply(address(weth), weth_amount, address(this), 0);
+    fundsDepositedInto = Protocol.AAVE;
   }
 
   function _deposit_to_compound(uint256 weth_amount) private {
-
+    fundsDepositedInto = Protocol.COMPOUND;
   }
 
   function withdraw() external onlyOwner returns (uint256) {
     uint256 balance = 123;
     emit Withdrawal(balance);
+    fundsDepositedInto = Protocol.NONE;
     return balance;
   }
 

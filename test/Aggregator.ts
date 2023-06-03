@@ -14,6 +14,20 @@ describe("Aggreegator", function () {
   let weth: WETH;
   let aaveAweth: ERC20;
 
+  enum Market {
+    AAVE = 0,
+    COMPOUND = 1
+  }
+
+  async function depositAndCheck(market: Market, amount: BigInt) {
+    await weth.deposit({value: amount});
+    await weth.approve(aggregator.address, amount);
+    await expect(aggregator.deposit(market, amount))
+      .to.emit(aggregator, "Deposit")
+      .withArgs(market, amount);
+    expect(await aaveAweth.balanceOf(aggregator.address)).to.eq(amount);
+  }
+
   beforeEach(async () => {
     vitalik = await ethers.getImpersonatedSigner("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045");
     const Aggregator = await ethers.getContractFactory("Aggregator", vitalik);
@@ -22,20 +36,23 @@ describe("Aggreegator", function () {
     aaveAweth = await ethers.getContractAt('ERC20', AAVE_A_WETH_MAINNET_ADDRESS);
   });
 
-  it("should deposit weth to aave", async () => {
-    enum Market {
-      AAVE = 0,
-      COMPOUND = 1
-    }
-    const amount = 3n * 10n ** 18n;
-    weth.deposit({value: amount});
-    console.log(`ETH ballance: ${await ethers.provider.getBalance(vitalik.address)}`);
-    console.log(`WETH ballance: ${await weth.balanceOf(vitalik.address)}`);
-    weth.approve(aggregator.address, amount);
+  it('should not let to make a deposit to anyone other than owner', async () => {
+    const imposter = await ethers.getImpersonatedSigner(ethers.utils.hexZeroPad("0x1", 20));
+    await expect(aggregator.connect(imposter).deposit(Market.AAVE, 3n * 10n ** 18n))
+      .to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
+  it('should not let to make a deposit twice', async () => {
+    await depositAndCheck(Market.AAVE, 3n * 10n ** 18n)
+    const amount = 1n * 10n ** 18n;
+    await weth.deposit({value: amount});
+    await weth.approve(aggregator.address, amount);
     await expect(aggregator.deposit(Market.AAVE, amount))
-      .to.emit(aggregator, "Deposit")
-      .withArgs(Market.AAVE, amount);
-    expect(await aaveAweth.balanceOf(aggregator.address)).to.eq(amount);
+      .to.be.revertedWith("You should withdraw before re-deposit");
+  });
+
+  it("should deposit weth to aave", async () => {
+    await depositAndCheck(Market.AAVE, 3n * 10n ** 18n)
   });
 
   it("should withdraw weth", async () => {
