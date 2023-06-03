@@ -19,7 +19,14 @@ describe("Aggreegator", function () {
     COMPOUND = 1
   }
 
+  enum Protocol{
+    AAVE = 0,
+    COMPOUND = 1,
+    NONE = 2
+  }
+
   async function depositAndCheck(market: Market, amount: BigInt) {
+    expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.NONE);
     await weth.deposit({value: amount});
     await weth.approve(aggregator.address, amount);
     await expect(aggregator.deposit(market, amount))
@@ -53,6 +60,7 @@ describe("Aggreegator", function () {
 
   it("should deposit weth to aave", async () => {
     await depositAndCheck(Market.AAVE, 3n * 10n ** 18n)
+    expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.AAVE);
   });
 
   it("should withdraw weth", async () => {
