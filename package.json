@@ -1,0 +1,27 @@
+{
+  "name": "yield-aggregator",
+  "version": "1.0.0",
+  "description": "home task for Dapp University",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "keywords": [
+    "defi",
+    "dapp",
+    "solidity",
+    "smart-contract A",
+    "compound",
+    "aave",
+    "yield"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexsanya/YieldAggregator.git"
+  },
+  "author": "Oleksandr Koval",
+  "license": "MIT",
+  "devDependencies": {
+    "hardhat": "^2.14.1"
+  }
+}
