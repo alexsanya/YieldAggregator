@@ -66,11 +66,13 @@ contract Aggregator is Ownable {
     if (fundsDepositedInto == Protocol.COMPOUND) {
       uint256 amount = _withdraw_from_compound();
       weth.transfer(msg.sender, amount);
+      fundsDepositedInto = Protocol.NONE;
       emit Withdrawal(Market.COMPOUND, amount);
       return amount;
     } else {
       uint256 amount = _withdraw_from_aave();
       weth.transfer(msg.sender, amount);
+      fundsDepositedInto = Protocol.NONE;
       emit Withdrawal(Market.AAVE, amount);
       return amount;
     }

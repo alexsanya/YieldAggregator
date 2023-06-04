@@ -76,12 +76,24 @@ describe("Aggreegator", function () {
     expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.COMPOUND);
   });
 
+  it("should not let withdraw to anyone other than owner", async() => {
+    const imposter = await ethers.getImpersonatedSigner(ethers.utils.hexZeroPad("0x1", 20));
+    await expect(aggregator.connect(imposter).withdraw())
+      .to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
+  it("should let to withdraw before deposit", async () => {
+    await expect(aggregator.withdraw())
+      .to.be.revertedWith("Nothing to withdraw");
+  });
+
   it("should withdraw from compound", async () => {
     const amount = 3n * 10n ** 18n;
     await deposit(Market.COMPOUND, amount);
     const wethBalanceBefore = await weth.balanceOf(vitalik.address);
     await expect(aggregator.withdraw())
       .to.emit(aggregator, "Withdrawal");
+    expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.NONE);
     const wethBalanceAfter = await weth.balanceOf(vitalik.address);
     console.log(`Withdrawed from Compound ${wethBalanceAfter - wethBalanceBefore} WETH`);
   });
@@ -92,6 +104,7 @@ describe("Aggreegator", function () {
     const wethBalanceBefore = await weth.balanceOf(vitalik.address);
     await expect(aggregator.withdraw())
       .to.emit(aggregator, "Withdrawal");
+    expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.NONE);
     const wethBalanceAfter = await weth.balanceOf(vitalik.address);
     console.log(`Withdrawed from AAVE ${wethBalanceAfter - wethBalanceBefore} WETH`);
   });
