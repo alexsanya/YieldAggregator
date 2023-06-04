@@ -137,12 +137,13 @@ describe("Aggreegator", function () {
     expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.AAVE);
   });
 
+  const SECONDS_PER_YEAR = 31536000;
+
   function AprToApy(apr: number): number {
-    const SECONDS_PER_YEAR = 31536000;
     return ((1 + (apr / SECONDS_PER_YEAR)) ** SECONDS_PER_YEAR) - 1;
   }
 
-  it("calculae APY for AAVE", async () => {
+  it("calculate APY for AAVE", async () => {
     const RAY = 10**27;
 
     const aavePoolAddress = await aggregator.getAavePoolAddress();
@@ -155,8 +156,6 @@ describe("Aggreegator", function () {
       currentVariableBorrowRate,
       currentStableBorrowRate,
     ] = await aavePool.getReserveData(weth.address);
-
-
 
     // Deposit and Borrow calculations
     // APY and APR are returned here as decimals, multiply by 100 to get the percents
@@ -173,7 +172,7 @@ describe("Aggreegator", function () {
     const variableBorrowAPY = AprToApy(variableBorrowAPR);
     const stableBorrowAPY = AprToApy(stableBorrowAPR);
 
-    console.log({
+    console.log('AAVE', {
       depositAPR,
       depositAPY,
       variableBorrowAPR,
@@ -182,6 +181,19 @@ describe("Aggreegator", function () {
     });
 
   });
+
+  it("calculate APY for Compound", async () => {
+    const utilization = await comet.getUtilization();
+    const supplyRate = await comet.getSupplyRate(utilization);
+    const supplyAPR = supplyRate / 10**18 * SECONDS_PER_YEAR;
+    const supplyAPY = AprToApy(supplyAPR);
+
+    console.log('Compound', {
+      supplyAPR,
+      supplyAPY
+    })
+  });
+
 
 });
 
