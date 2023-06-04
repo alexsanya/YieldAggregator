@@ -12,20 +12,23 @@ contract Aggregator is Ownable {
   enum Protocol{ AAVE, COMPOUND, NONE }
 
   event Deposit(Market market, uint256 amount);
-  event Withdrawal(uint256 amount);
-  event Rebalance(address from, address to);
+  event Withdrawal(Market market, uint256 amount);
+  event Rebalance(Market from, Market to);
 
   Protocol public fundsDepositedInto = Protocol.NONE;
 
   address public constant AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS = 0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e;
   address public constant WETH_MAINNET_ADDRESS = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
   address public constant COMPOUND_V3_PROXY_MAINNET_ADDRESS = 0xA17581A9E3356d9A858b789D68B4d866e593aE94;
+  address public constant AAVE_A_WETH_MAINNET_ADDRESS = 0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8;
 
   IERC20 immutable weth;
+  IERC20 immutable aaveAweth;
   IComet immutable comet;
 
   constructor() Ownable() {
     weth = IERC20(WETH_MAINNET_ADDRESS);
+    aaveAweth = IERC20(AAVE_A_WETH_MAINNET_ADDRESS);
     comet = IComet(COMPOUND_V3_PROXY_MAINNET_ADDRESS);
   }
 
@@ -40,9 +43,13 @@ contract Aggregator is Ownable {
     emit Deposit(_market, weth_amount);
   }
 
-  function _deposit_to_aave(uint256 weth_amount) private {
+  function _getAavePool() private returns (IPool) {
     address aaveV3PoolAddress = IPoolAddressesProvider(AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS).getPool();
-    IPool aavePool = IPool(aaveV3PoolAddress);
+    return IPool(aaveV3PoolAddress);
+  }
+
+  function _deposit_to_aave(uint256 weth_amount) private {
+    IPool aavePool = _getAavePool();
     weth.approve(address(aavePool), weth_amount);
     aavePool.supply(address(weth), weth_amount, address(this), 0);
     fundsDepositedInto = Protocol.AAVE;
@@ -55,17 +62,35 @@ contract Aggregator is Ownable {
   }
 
   function withdraw() external onlyOwner returns (uint256) {
-    uint256 balance = 123;
-    emit Withdrawal(balance);
-    fundsDepositedInto = Protocol.NONE;
-    return balance;
+    require(fundsDepositedInto != Protocol.NONE, "Nothing to withdraw");
+    if (fundsDepositedInto == Protocol.COMPOUND) {
+      uint256 amount = _withdraw_from_compound();
+      weth.transfer(msg.sender, amount);
+      emit Withdrawal(Market.COMPOUND, amount);
+      return amount;
+    } else {
+      uint256 amount = _withdraw_from_aave();
+      weth.transfer(msg.sender, amount);
+      emit Withdrawal(Market.AAVE, amount);
+      return amount;
+    }
   }
 
-  function rebalance() external onlyOwner returns (address) {
-    address from = address(0x1);
-    address to = address(0x2);
-    emit Rebalance(from, to);
-    return to;
+  function _withdraw_from_compound() private returns (uint256) {
+    comet.withdraw(address(weth), comet.balanceOf(address(this)));
+    return weth.balanceOf(address(this));
+  }
+
+  function _withdraw_from_aave() private returns (uint256) {
+    IPool aavePool = _getAavePool();
+    aaveAweth.approve(address(aavePool), type(uint).max);
+    aavePool.withdraw(address(weth), type(uint).max, address(this));
+    return weth.balanceOf(address(this));
+  }
+
+  function rebalance() external onlyOwner returns (Market) {
+    emit Rebalance(Market.COMPOUND, Market.AAVE);
+    return Market.AAVE;
   }
 }
 

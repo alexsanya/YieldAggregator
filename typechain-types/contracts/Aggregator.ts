@@ -29,6 +29,7 @@ import type {
 
 export interface AggregatorInterface extends utils.Interface {
   functions: {
+    "AAVE_A_WETH_MAINNET_ADDRESS()": FunctionFragment;
     "AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS()": FunctionFragment;
     "COMPOUND_V3_PROXY_MAINNET_ADDRESS()": FunctionFragment;
     "WETH_MAINNET_ADDRESS()": FunctionFragment;
@@ -43,6 +44,7 @@ export interface AggregatorInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "AAVE_A_WETH_MAINNET_ADDRESS"
       | "AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS"
       | "COMPOUND_V3_PROXY_MAINNET_ADDRESS"
       | "WETH_MAINNET_ADDRESS"
@@ -55,6 +57,10 @@ export interface AggregatorInterface extends utils.Interface {
       | "withdraw"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "AAVE_A_WETH_MAINNET_ADDRESS",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS",
     values?: undefined
@@ -88,6 +94,10 @@ export interface AggregatorInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
   decodeFunctionResult(
+    functionFragment: "AAVE_A_WETH_MAINNET_ADDRESS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS",
     data: BytesLike
   ): Result;
@@ -119,8 +129,8 @@ export interface AggregatorInterface extends utils.Interface {
   events: {
     "Deposit(uint8,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "Rebalance(address,address)": EventFragment;
-    "Withdrawal(uint256)": EventFragment;
+    "Rebalance(uint8,uint8)": EventFragment;
+    "Withdrawal(uint8,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
@@ -150,17 +160,21 @@ export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface RebalanceEventObject {
-  from: string;
-  to: string;
+  from: number;
+  to: number;
 }
-export type RebalanceEvent = TypedEvent<[string, string], RebalanceEventObject>;
+export type RebalanceEvent = TypedEvent<[number, number], RebalanceEventObject>;
 
 export type RebalanceEventFilter = TypedEventFilter<RebalanceEvent>;
 
 export interface WithdrawalEventObject {
+  market: number;
   amount: BigNumber;
 }
-export type WithdrawalEvent = TypedEvent<[BigNumber], WithdrawalEventObject>;
+export type WithdrawalEvent = TypedEvent<
+  [number, BigNumber],
+  WithdrawalEventObject
+>;
 
 export type WithdrawalEventFilter = TypedEventFilter<WithdrawalEvent>;
 
@@ -191,6 +205,8 @@ export interface Aggregator extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    AAVE_A_WETH_MAINNET_ADDRESS(overrides?: CallOverrides): Promise<[string]>;
+
     AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS(
       overrides?: CallOverrides
     ): Promise<[string]>;
@@ -229,6 +245,8 @@ export interface Aggregator extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  AAVE_A_WETH_MAINNET_ADDRESS(overrides?: CallOverrides): Promise<string>;
+
   AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS(
     overrides?: CallOverrides
   ): Promise<string>;
@@ -265,6 +283,8 @@ export interface Aggregator extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    AAVE_A_WETH_MAINNET_ADDRESS(overrides?: CallOverrides): Promise<string>;
+
     AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS(
       overrides?: CallOverrides
     ): Promise<string>;
@@ -285,7 +305,7 @@ export interface Aggregator extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    rebalance(overrides?: CallOverrides): Promise<string>;
+    rebalance(overrides?: CallOverrides): Promise<number>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
@@ -310,14 +330,19 @@ export interface Aggregator extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
-    "Rebalance(address,address)"(from?: null, to?: null): RebalanceEventFilter;
+    "Rebalance(uint8,uint8)"(from?: null, to?: null): RebalanceEventFilter;
     Rebalance(from?: null, to?: null): RebalanceEventFilter;
 
-    "Withdrawal(uint256)"(amount?: null): WithdrawalEventFilter;
-    Withdrawal(amount?: null): WithdrawalEventFilter;
+    "Withdrawal(uint8,uint256)"(
+      market?: null,
+      amount?: null
+    ): WithdrawalEventFilter;
+    Withdrawal(market?: null, amount?: null): WithdrawalEventFilter;
   };
 
   estimateGas: {
+    AAVE_A_WETH_MAINNET_ADDRESS(overrides?: CallOverrides): Promise<BigNumber>;
+
     AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS(
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -357,6 +382,10 @@ export interface Aggregator extends BaseContract {
   };
 
   populateTransaction: {
+    AAVE_A_WETH_MAINNET_ADDRESS(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

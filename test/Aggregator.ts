@@ -76,16 +76,31 @@ describe("Aggreegator", function () {
     expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.COMPOUND);
   });
 
-  it("should withdraw weth", async () => {
+  it("should withdraw from compound", async () => {
+    const amount = 3n * 10n ** 18n;
+    await deposit(Market.COMPOUND, amount);
+    const wethBalanceBefore = await weth.balanceOf(vitalik.address);
     await expect(aggregator.withdraw())
-      .to.emit(aggregator, "Withdrawal")
-      .withArgs(123);
+      .to.emit(aggregator, "Withdrawal");
+    const wethBalanceAfter = await weth.balanceOf(vitalik.address);
+    console.log(`Withdrawed from Compound ${wethBalanceAfter - wethBalanceBefore} WETH`);
   });
+
+  it("should withdraw from aave", async () => {
+    const amount = 3n * 10n ** 18n;
+    await deposit(Market.AAVE, amount);
+    const wethBalanceBefore = await weth.balanceOf(vitalik.address);
+    await expect(aggregator.withdraw())
+      .to.emit(aggregator, "Withdrawal");
+    const wethBalanceAfter = await weth.balanceOf(vitalik.address);
+    console.log(`Withdrawed from AAVE ${wethBalanceAfter - wethBalanceBefore} WETH`);
+  });
+
 
   it("should rebalance", async () => {
     await expect(aggregator.rebalance())
       .to.emit(aggregator, "Rebalance")
-      .withArgs(ethers.utils.hexZeroPad("0x1", 20), ethers.utils.hexZeroPad("0x2", 20));
+      .withArgs(Protocol.COMPOUND, Protocol.AAVE);
   });
 });
 
