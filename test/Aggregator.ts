@@ -4,6 +4,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers, utils } from "hardhat";
 import { Aggregator, WETH, ERC20, IComet } from "../typechain-types";
+import { IPool } from "@aave/core-v3/contracts/interfaces";
+import BigNumber from 'bignumber.js';
 
 const WETH_MAINNET_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const AAVE_A_WETH_MAINNET_ADDRESS = "0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8";
@@ -133,6 +135,52 @@ describe("Aggreegator", function () {
     await aggregator.rebalance();
     expect(await aaveAweth.balanceOf(aggregator.address)).to.gte(amount);
     expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.AAVE);
+  });
+
+  function AprToApy(apr: number): number {
+    const SECONDS_PER_YEAR = 31536000;
+    return ((1 + (apr / SECONDS_PER_YEAR)) ** SECONDS_PER_YEAR) - 1;
+  }
+
+  it("calculae APY for AAVE", async () => {
+    const RAY = 10**27;
+
+    const aavePoolAddress = await aggregator.getAavePoolAddress();
+    const aavePool = await ethers.getContractAt('IPool', aavePoolAddress);
+    const [
+      configuration,
+      liquidityIndex,
+      currentLiquidityRate,
+      variableBorrowIndex, 
+      currentVariableBorrowRate,
+      currentStableBorrowRate,
+    ] = await aavePool.getReserveData(weth.address);
+
+
+
+    // Deposit and Borrow calculations
+    // APY and APR are returned here as decimals, multiply by 100 to get the percents
+
+    console.log(`Current liquidity rate: ${currentLiquidityRate}`);
+
+    const depositAPR = currentLiquidityRate / RAY;
+    console.log(`DepositAPR: ${depositAPR}`);
+
+    const variableBorrowAPR = currentVariableBorrowRate / RAY;
+    const stableBorrowAPR = currentStableBorrowRate / RAY;
+
+    const depositAPY = AprToApy(depositAPR);
+    const variableBorrowAPY = AprToApy(variableBorrowAPR);
+    const stableBorrowAPY = AprToApy(stableBorrowAPR);
+
+    console.log({
+      depositAPR,
+      depositAPY,
+      variableBorrowAPR,
+      stableBorrowAPR,
+      variableBorrowAPY,
+    });
+
   });
 
 });

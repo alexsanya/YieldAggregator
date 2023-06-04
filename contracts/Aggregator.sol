@@ -43,9 +43,13 @@ contract Aggregator is Ownable {
     emit Deposit(_market, weth_amount);
   }
 
-  function _getAavePool() private returns (IPool) {
+  function _getAavePool() private view returns (IPool) {
     address aaveV3PoolAddress = IPoolAddressesProvider(AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS).getPool();
     return IPool(aaveV3PoolAddress);
+  }
+
+  function getAavePoolAddress() external view returns (address) {
+    return address(_getAavePool());
   }
 
   function _deposit_to_aave(uint256 weth_amount) private {
