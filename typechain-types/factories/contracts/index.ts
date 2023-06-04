@@ -3,4 +3,5 @@
 /* eslint-disable */
 export { Aggregator__factory } from "./Aggregator__factory";
 export { ERC20__factory } from "./ERC20__factory";
+export { IComet__factory } from "./IComet__factory";
 export { WETH__factory } from "./WETH__factory";

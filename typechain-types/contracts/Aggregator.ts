@@ -30,6 +30,7 @@ import type {
 export interface AggregatorInterface extends utils.Interface {
   functions: {
     "AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS()": FunctionFragment;
+    "COMPOUND_V3_PROXY_MAINNET_ADDRESS()": FunctionFragment;
     "WETH_MAINNET_ADDRESS()": FunctionFragment;
     "deposit(uint8,uint256)": FunctionFragment;
     "fundsDepositedInto()": FunctionFragment;
@@ -43,6 +44,7 @@ export interface AggregatorInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS"
+      | "COMPOUND_V3_PROXY_MAINNET_ADDRESS"
       | "WETH_MAINNET_ADDRESS"
       | "deposit"
       | "fundsDepositedInto"
@@ -55,6 +57,10 @@ export interface AggregatorInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "COMPOUND_V3_PROXY_MAINNET_ADDRESS",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -83,6 +89,10 @@ export interface AggregatorInterface extends utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "COMPOUND_V3_PROXY_MAINNET_ADDRESS",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -185,6 +195,10 @@ export interface Aggregator extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    COMPOUND_V3_PROXY_MAINNET_ADDRESS(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     WETH_MAINNET_ADDRESS(overrides?: CallOverrides): Promise<[string]>;
 
     deposit(
@@ -219,6 +233,8 @@ export interface Aggregator extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  COMPOUND_V3_PROXY_MAINNET_ADDRESS(overrides?: CallOverrides): Promise<string>;
+
   WETH_MAINNET_ADDRESS(overrides?: CallOverrides): Promise<string>;
 
   deposit(
@@ -250,6 +266,10 @@ export interface Aggregator extends BaseContract {
 
   callStatic: {
     AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    COMPOUND_V3_PROXY_MAINNET_ADDRESS(
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -302,6 +322,10 @@ export interface Aggregator extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    COMPOUND_V3_PROXY_MAINNET_ADDRESS(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     WETH_MAINNET_ADDRESS(overrides?: CallOverrides): Promise<BigNumber>;
 
     deposit(
@@ -334,6 +358,10 @@ export interface Aggregator extends BaseContract {
 
   populateTransaction: {
     AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    COMPOUND_V3_PROXY_MAINNET_ADDRESS(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

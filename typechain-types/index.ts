@@ -20,5 +20,7 @@ export type { Aggregator } from "./contracts/Aggregator";
 export { Aggregator__factory } from "./factories/contracts/Aggregator__factory";
 export type { ERC20 } from "./contracts/ERC20";
 export { ERC20__factory } from "./factories/contracts/ERC20__factory";
+export type { IComet } from "./contracts/IComet";
+export { IComet__factory } from "./factories/contracts/IComet__factory";
 export type { WETH } from "./contracts/WETH";
 export { WETH__factory } from "./factories/contracts/WETH__factory";

@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 import "@aave/core-v3/contracts/interfaces/IPool.sol";
+import "./IComet.sol";
 
 contract Aggregator is Ownable {
   enum Market{ AAVE, COMPOUND, NONE }
@@ -18,11 +19,14 @@ contract Aggregator is Ownable {
 
   address public constant AAVE_V3_MAINNET_POOL_ADDRESS_PROVIDER_ADDRESS = 0x2f39d218133AFaB8F2B819B1066c7E434Ad94E9e;
   address public constant WETH_MAINNET_ADDRESS = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+  address public constant COMPOUND_V3_PROXY_MAINNET_ADDRESS = 0xA17581A9E3356d9A858b789D68B4d866e593aE94;
 
   IERC20 immutable weth;
+  IComet immutable comet;
 
   constructor() Ownable() {
     weth = IERC20(WETH_MAINNET_ADDRESS);
+    comet = IComet(COMPOUND_V3_PROXY_MAINNET_ADDRESS);
   }
 
   function deposit(Market _market, uint256 weth_amount) external onlyOwner {
@@ -45,6 +49,8 @@ contract Aggregator is Ownable {
   }
 
   function _deposit_to_compound(uint256 weth_amount) private {
+    weth.approve(address(comet), weth_amount);
+    comet.supply(address(weth), weth_amount);
     fundsDepositedInto = Protocol.COMPOUND;
   }
 
