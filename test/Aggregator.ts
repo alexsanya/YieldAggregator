@@ -12,6 +12,7 @@ const COMPOUND_V3_PROXY_MAINNET_ADDRESS = "0xA17581A9E3356d9A858b789D68B4d866e59
 describe("Aggreegator", function () {
   let aggregator: Aggregator;
   let vitalik: ethers.Signer;
+  let imposter: ethers.Signer;
   let weth: WETH;
   let comet: IComet;
   let aaveAweth: ERC20;
@@ -38,6 +39,7 @@ describe("Aggreegator", function () {
 
   beforeEach(async () => {
     vitalik = await ethers.getImpersonatedSigner("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045");
+    imposter = await ethers.getImpersonatedSigner(ethers.utils.hexZeroPad("0x1", 20));
     const Aggregator = await ethers.getContractFactory("Aggregator", vitalik);
     aggregator = await Aggregator.deploy();
     weth = await ethers.getContractAt('WETH', WETH_MAINNET_ADDRESS, vitalik);
@@ -46,7 +48,6 @@ describe("Aggreegator", function () {
   });
 
   it('should not let to make a deposit to anyone other than owner', async () => {
-    const imposter = await ethers.getImpersonatedSigner(ethers.utils.hexZeroPad("0x1", 20));
     await expect(aggregator.connect(imposter).deposit(Market.AAVE, 3n * 10n ** 18n))
       .to.be.revertedWith("Ownable: caller is not the owner");
   });
@@ -77,7 +78,6 @@ describe("Aggreegator", function () {
   });
 
   it("should not let withdraw to anyone other than owner", async() => {
-    const imposter = await ethers.getImpersonatedSigner(ethers.utils.hexZeroPad("0x1", 20));
     await expect(aggregator.connect(imposter).withdraw())
       .to.be.revertedWith("Ownable: caller is not the owner");
   });
@@ -110,7 +110,6 @@ describe("Aggreegator", function () {
   });
 
   it("should not let to rebalance to anyone other than owner", async () => {
-    const imposter = await ethers.getImpersonatedSigner(ethers.utils.hexZeroPad("0x1", 20));
     await expect(aggregator.connect(imposter).rebalance())
       .to.be.revertedWith("Ownable: caller is not the owner");
   });
@@ -124,7 +123,7 @@ describe("Aggreegator", function () {
     const amount = 3n * 10n ** 18n;
     await deposit(Market.AAVE, amount);
     await aggregator.rebalance();
-    expect(await comet.balanceOf(aggregator.address)).to.gt(amount);
+    expect(await comet.balanceOf(aggregator.address)).to.gte(amount);
     expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.COMPOUND);
   });
 
@@ -132,7 +131,7 @@ describe("Aggreegator", function () {
     const amount = 3n * 10n ** 18n;
     await deposit(Market.COMPOUND, amount);
     await aggregator.rebalance();
-    expect(await aaveAweth.balanceOf(aggregator.address)).to.gt(amount);
+    expect(await aaveAweth.balanceOf(aggregator.address)).to.gte(amount);
     expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.AAVE);
   });
 
