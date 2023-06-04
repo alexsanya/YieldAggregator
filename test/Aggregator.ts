@@ -109,11 +109,32 @@ describe("Aggreegator", function () {
     console.log(`Withdrawed from AAVE ${wethBalanceAfter - wethBalanceBefore} WETH`);
   });
 
-
-  it("should rebalance", async () => {
-    await expect(aggregator.rebalance())
-      .to.emit(aggregator, "Rebalance")
-      .withArgs(Protocol.COMPOUND, Protocol.AAVE);
+  it("should not let to rebalance to anyone other than owner", async () => {
+    const imposter = await ethers.getImpersonatedSigner(ethers.utils.hexZeroPad("0x1", 20));
+    await expect(aggregator.connect(imposter).rebalance())
+      .to.be.revertedWith("Ownable: caller is not the owner");
   });
+
+  it("should let to rebalance before deposit", async () => {
+    await expect(aggregator.rebalance())
+      .to.be.revertedWith("Nothing to rebalance");
+  });
+
+  it("should rebalance from aave to compound", async () => {
+    const amount = 3n * 10n ** 18n;
+    await deposit(Market.AAVE, amount);
+    await aggregator.rebalance();
+    expect(await comet.balanceOf(aggregator.address)).to.gt(amount);
+    expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.COMPOUND);
+  });
+
+  it("should rebalance from compound to aave", async () => {
+    const amount = 3n * 10n ** 18n;
+    await deposit(Market.COMPOUND, amount);
+    await aggregator.rebalance();
+    expect(await aaveAweth.balanceOf(aggregator.address)).to.gt(amount);
+    expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.AAVE);
+  });
+
 });
 

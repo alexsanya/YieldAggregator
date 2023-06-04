@@ -91,8 +91,18 @@ contract Aggregator is Ownable {
   }
 
   function rebalance() external onlyOwner returns (Market) {
-    emit Rebalance(Market.COMPOUND, Market.AAVE);
-    return Market.AAVE;
+    require(fundsDepositedInto != Protocol.NONE, "Nothing to rebalance");
+    if (fundsDepositedInto == Protocol.AAVE) {
+       uint256 amount = _withdraw_from_aave();
+      _deposit_to_compound(amount);
+      emit Rebalance(Market.AAVE, Market.COMPOUND);
+      return Market.COMPOUND;
+    } else {
+       uint256 amount = _withdraw_from_compound();
+      _deposit_to_aave(amount);
+      emit Rebalance(Market.COMPOUND, Market.AAVE);
+      return Market.AAVE;
+    }
   }
 }
 
