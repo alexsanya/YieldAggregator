@@ -12,6 +12,7 @@ import {
 import { IWeb3Context, useWeb3Context } from "../context/Web3Context";
 import { MdCheck, MdError } from "react-icons/md";
 import useBalances from "../hooks/useBalances";
+import useAggregator from "../hooks/useAggregator";
 import Link from "next/link";
 
 const ETHMainnerChainID = 31337;
@@ -23,11 +24,21 @@ export default function Home() {
     state: { isAuthenticated, address, currentChain },
   } = useWeb3Context() as IWeb3Context;
 
+  const { deposit, withdraw, rebalance, protocolAddress, loading } = useAggregator();
   const { aggregatorBalance, walletBalance } = useBalances();
+  const [amountStr, setAmountStr] = useState<string>("");
 
   const correctNetwork = useMemo(() => {
     return currentChain === ETHMainnerChainID;
   }, [currentChain]);
+
+  const handleDeposit = async (e: any) => {
+    e.preventDefault();
+    if (amountStr.trim() === "") return;
+
+    deposit(parseInt(amountStr));
+  };
+
 
   return (
     <div>
@@ -81,6 +92,35 @@ export default function Home() {
             <HStack>
               <Text>Deposited: {aggregatorBalance ? aggregatorBalance : "Loading..."}</Text>
             </HStack>
+            <Box
+              onSubmit={handleDeposit}
+              as="form"
+              display="flex"
+              flexDirection="column"
+              gap={4}
+            >
+              <Input
+                type="text"
+                placeholder="Enter amount"
+                variant="flushed"
+                colorScheme="blue"
+                name="amount"
+                value={amountStr}
+                onChange={(e) => setAmountStr(e.target.value)}
+              />
+              <Button
+                type="submit"
+                variant="solid"
+                bg="green.400"
+                colorScheme="green"
+                color="white"
+                gap={2}
+                isLoading={loading}
+              >
+                <Icon as={MdCheck} />
+                Deposit
+              </Button>
+            </Box>
           </VStack>
         ) : (
           <HStack spacing={2} ml={4} mt={4}>

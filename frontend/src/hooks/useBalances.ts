@@ -23,7 +23,6 @@ const useBalances = () => {
     const getWalletBalance = async () => {
       try {
         const response = await weth.balanceOf(USER_ADDRESS);
-        console.log('Wallet balance: ', response);
         setWalletBalance(response.toString());
       } catch {}
     }
