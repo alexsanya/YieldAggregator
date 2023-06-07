@@ -36,6 +36,7 @@ export interface AggregatorInterface extends utils.Interface {
     "deposit(uint8,uint256)": FunctionFragment;
     "fundsDepositedInto()": FunctionFragment;
     "getAavePoolAddress()": FunctionFragment;
+    "getBalance()": FunctionFragment;
     "owner()": FunctionFragment;
     "rebalance()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -52,6 +53,7 @@ export interface AggregatorInterface extends utils.Interface {
       | "deposit"
       | "fundsDepositedInto"
       | "getAavePoolAddress"
+      | "getBalance"
       | "owner"
       | "rebalance"
       | "renounceOwnership"
@@ -85,6 +87,10 @@ export interface AggregatorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAavePoolAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getBalance",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -124,6 +130,7 @@ export interface AggregatorInterface extends utils.Interface {
     functionFragment: "getAavePoolAddress",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getBalance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "rebalance", data: BytesLike): Result;
   decodeFunctionResult(
@@ -237,6 +244,8 @@ export interface Aggregator extends BaseContract {
 
     getAavePoolAddress(overrides?: CallOverrides): Promise<[string]>;
 
+    getBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     rebalance(
@@ -276,6 +285,8 @@ export interface Aggregator extends BaseContract {
   fundsDepositedInto(overrides?: CallOverrides): Promise<number>;
 
   getAavePoolAddress(overrides?: CallOverrides): Promise<string>;
+
+  getBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
   owner(overrides?: CallOverrides): Promise<string>;
 
@@ -318,6 +329,8 @@ export interface Aggregator extends BaseContract {
     fundsDepositedInto(overrides?: CallOverrides): Promise<number>;
 
     getAavePoolAddress(overrides?: CallOverrides): Promise<string>;
+
+    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
@@ -379,6 +392,8 @@ export interface Aggregator extends BaseContract {
 
     getAavePoolAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getBalance(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     rebalance(
@@ -429,6 +444,8 @@ export interface Aggregator extends BaseContract {
     getAavePoolAddress(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

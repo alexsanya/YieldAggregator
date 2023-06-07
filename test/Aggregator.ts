@@ -11,7 +11,7 @@ const WETH_MAINNET_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const AAVE_A_WETH_MAINNET_ADDRESS = "0x4d5F47FA6A74757f35C14fD3a6Ef8E3C9BC514E8";
 const COMPOUND_V3_PROXY_MAINNET_ADDRESS = "0xA17581A9E3356d9A858b789D68B4d866e593aE94";
 
-describe("Aggreegator", function () {
+describe("Aggregator", function () {
   let aggregator: Aggregator;
   let vitalik: ethers.Signer;
   let imposter: ethers.Signer;
@@ -68,6 +68,7 @@ describe("Aggreegator", function () {
   it("should deposit weth to aave", async () => {
     const amount = 3n * 10n ** 18n;
     await deposit(Market.AAVE, amount);
+    expect(await aggregator.getBalance()).to.eq(amount);
     expect(await aaveAweth.balanceOf(aggregator.address)).to.eq(amount);
     expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.AAVE);
   });
@@ -75,6 +76,7 @@ describe("Aggreegator", function () {
   it("should deposit weth to compound", async () => {
     const amount = 3n * 10n ** 18n;
     await deposit(Market.COMPOUND, amount);
+    expect(await aggregator.getBalance()).to.eq(amount - 1n);
     expect(await comet.balanceOf(aggregator.address)).to.eq(amount - 1n);
     expect(await aggregator.fundsDepositedInto()).to.eq(Protocol.COMPOUND);
   });

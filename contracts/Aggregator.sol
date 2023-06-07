@@ -82,6 +82,16 @@ contract Aggregator is Ownable {
     }
   }
 
+  function getBalance() external view returns (uint256) {
+    if (fundsDepositedInto == Protocol.AAVE) {
+      return aaveAweth.balanceOf(address(this));
+    }
+    if (fundsDepositedInto == Protocol.COMPOUND) {
+      return comet.balanceOf(address(this));
+    }
+    return 0;
+  }
+
   function _withdraw_from_compound() private returns (uint256) {
     comet.withdraw(address(weth), comet.balanceOf(address(this)));
     return weth.balanceOf(address(this));
