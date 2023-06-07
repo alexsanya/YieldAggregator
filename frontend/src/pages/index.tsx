@@ -25,7 +25,7 @@ export default function Home() {
     state: { isAuthenticated, address, currentChain },
   } = useWeb3Context() as IWeb3Context;
 
-  const { deposit, withdraw, rebalance, protocolAddress, loading } = useAggregator();
+  const { deposit, withdraw, rebalance, protocolAddress, apyAAVE, apyCompound, loading } = useAggregator();
   const { getWeth } = useGetWeth();
   const { aggregatorBalance, walletBalance } = useBalances();
   const [amountStr, setAmountStr] = useState<string>("");
@@ -107,6 +107,12 @@ export default function Home() {
             </HStack>
             <HStack>
               <Text>Deposited into: {protocolAddress ? protocolAddress : "Loading..."}</Text>
+            </HStack>
+            <HStack>
+              <Text>Supply APY on AAVE: {apyAAVE ? apyAAVE * 100 + '%' : "Loading..."}</Text>
+            </HStack>
+            <HStack>
+              <Text>Supply APY on Compound: {apyCompound ? apyCompound * 100 + '%' : "Loading..."}</Text>
             </HStack>
             <Box
               onSubmit={handleGetWeth}

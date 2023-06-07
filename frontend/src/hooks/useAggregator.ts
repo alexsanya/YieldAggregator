@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
 import useYieldAggregatorContract from "./useYieldAggregatorContract";
 import useWethContract from "./useWethContract";
+import useAavePoolContract from "./useAavePoolContract";
 import { useWeb3Context } from "../context/Web3Context";
+import aavePoolAbi from "../abis/AAVEpool.json";
+import cometAbi from "../abis/cometAbi.json";
+import { Contract } from "ethers";
 
 const useAggregator = () => {
+  const { state } = useWeb3Context() as IWeb3Context;
   const aggregatorContract = useYieldAggregatorContract();
   const wethContract = useWethContract();
   const [loading, setLoading] = useState(false);
   const [protocolAddress, setProtocolAddress] = useState("None");
+  const [apyAAVE, setAPYaave] = useState(0);
+  const [apyCompound, setAPYcompound] = useState(0);
 
-    enum Protocol {
+  enum Protocol {
     AAVE = 0,
     COMPOUND = 1
   }
@@ -18,29 +25,63 @@ const useAggregator = () => {
     if (!aggregatorContract) return;
     let mounted = true;
 
+    const SECONDS_PER_YEAR = 31536000;
+
+    function AprToApy(apr: number): number {
+      return ((1 + (apr / SECONDS_PER_YEAR)) ** SECONDS_PER_YEAR) - 1;
+    }
+
+    const getApyAAVE = async () => {
+      const RAY = 10**27;
+      const aavePoolAddress = await aggregatorContract.getAavePoolAddress();
+      const aavePool = new Contract(aavePoolAddress, aavePoolAbi, state.signer);
+      const [
+        configuration,
+        liquidityIndex,
+        currentLiquidityRate,
+        variableBorrowIndex, 
+        currentVariableBorrowRate,
+        currentStableBorrowRate,
+      ] = await aavePool.getReserveData(await wethContract.getAddress());
+      
+      const supplyAPR = Number(currentLiquidityRate) / RAY;
+
+      const supplyAPY = AprToApy(supplyAPR);
+      setAPYaave(supplyAPY);
+    }
+
+    const getApyCompound = async () => {
+      const cometAddress = await aggregatorContract.COMPOUND_V3_PROXY_MAINNET_ADDRESS();
+      const comet = new Contract(cometAddress, cometAbi, state.signer);
+      const utilization = await comet.getUtilization();
+      const supplyRate = await comet.getSupplyRate(utilization);
+      const supplyAPR = Number(supplyRate) / 10**18 * SECONDS_PER_YEAR;
+      const supplyAPY = AprToApy(supplyAPR);
+      setAPYcompound(supplyAPY);
+    }
+
     const getProtocolAddress = async () => {
       try {
         const protocol = await aggregatorContract.fundsDepositedInto();
-        console.log(`Protocol: ${protocol}`, protocol);
-        console.log(protocol.toString());
         if (protocol == Protocol.AAVE) {
-          console.log('AAVE');
           const poolAddress = await aggregatorContract.getAavePoolAddress();
-          console.log(poolAddress);
           setProtocolAddress(await aggregatorContract.getAavePoolAddress());
           return;
         }
         if (protocol == Protocol.COMPOUND) {
-          console.log('COMPOUND');
           setProtocolAddress(await aggregatorContract.COMPOUND_V3_PROXY_MAINNET_ADDRESS());
           return;
         }
         setProtocolAddress("No deposited");
+
+
       } catch {}
     }
 
     if (mounted) {
       getProtocolAddress();
+      getApyAAVE();
+      getApyCompound();
     }
 
     return () => {
@@ -54,10 +95,14 @@ const useAggregator = () => {
 
     setLoading(true);
 
+    console.log(`AAVE deposit APY ${apyAAVE}`);
+    console.log(`Compound deposit APY ${apyCompound}`);
+
+    const protocol = apyAAVE > apyCompound ? Protocol.AAVE : Protocol.COMPOUND;
     try {
       const approveWethTransaction = await wethContract.approve(await aggregatorContract.getAddress(), amount);
       await approveWethTransaction.wait();
-      const depositTransaction = await aggregatorContract.deposit(0, amount);
+      const depositTransaction = await aggregatorContract.deposit(protocol, amount);
       await depositTransaction.wait();
     } catch {
     } finally {
@@ -78,7 +123,7 @@ const useAggregator = () => {
   }
 
 
-  return { deposit, withdraw, rebalance, protocolAddress };
+  return { deposit, withdraw, rebalance, protocolAddress, apyAAVE, apyCompound };
 };
 
 export default useAggregator;
