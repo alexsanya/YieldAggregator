@@ -45,6 +45,14 @@ export default function Home() {
     getWeth(parseInt(amountStr));
   };
 
+  const handleWithdraw = async (e: any) => {
+    withdraw();
+  };
+
+  const handleRebalance = async (e: any) => {
+    rebalance();
+  };
+
   return (
     <div>
       <Head>
@@ -97,6 +105,9 @@ export default function Home() {
             <HStack>
               <Text>Deposited: {aggregatorBalance ? aggregatorBalance : "Loading..."}</Text>
             </HStack>
+            <HStack>
+              <Text>Deposited into: {protocolAddress ? protocolAddress : "Loading..."}</Text>
+            </HStack>
             <Box
               onSubmit={handleGetWeth}
               as="form"
@@ -144,6 +155,46 @@ export default function Home() {
               >
                 <Icon as={MdCheck} />
                 Deposit
+              </Button>
+            </Box>
+            <Box
+              onSubmit={handleWithdraw}
+              as="form"
+              display="flex"
+              flexDirection="column"
+              gap={4}
+            >
+              <Button
+                type="submit"
+                variant="solid"
+                bg="blue.400"
+                colorScheme="green"
+                color="white"
+                gap={2}
+                isLoading={loading}
+              >
+                <Icon as={MdCheck} />
+                Withdraw
+              </Button>
+            </Box>
+            <Box
+              onSubmit={handleRebalance}
+              as="form"
+              display="flex"
+              flexDirection="column"
+              gap={4}
+            >
+              <Button
+                type="submit"
+                variant="solid"
+                bg="gray.400"
+                colorScheme="green"
+                color="white"
+                gap={2}
+                isLoading={loading}
+              >
+                <Icon as={MdCheck} />
+                Rebalance
               </Button>
             </Box>
           </VStack>
