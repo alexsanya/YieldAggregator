@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { IWeb3Context, useWeb3Context } from "../context/Web3Context";
 import { MdCheck, MdError } from "react-icons/md";
+import useBalances from "../hooks/useBalances";
 import Link from "next/link";
 
 const ETHMainnerChainID = 31337;
@@ -21,6 +22,8 @@ export default function Home() {
     disconnect,
     state: { isAuthenticated, address, currentChain },
   } = useWeb3Context() as IWeb3Context;
+
+  const { aggregatorBalance, walletBalance } = useBalances();
 
   const correctNetwork = useMemo(() => {
     return currentChain === ETHMainnerChainID;
@@ -72,7 +75,12 @@ export default function Home() {
       {isAuthenticated &&
         (correctNetwork ? (
           <VStack ml={4} mt={4} spacing={4} alignItems="flex-start">
-            Connected
+            <Text>
+              Wallet balance: {walletBalance ? walletBalance : "Loading..."}
+            </Text>
+            <HStack>
+              <Text>Deposited: {aggregatorBalance ? aggregatorBalance : "Loading..."}</Text>
+            </HStack>
           </VStack>
         ) : (
           <HStack spacing={2} ml={4} mt={4}>
