@@ -13,6 +13,7 @@ import { IWeb3Context, useWeb3Context } from "../context/Web3Context";
 import { MdCheck, MdError } from "react-icons/md";
 import useBalances from "../hooks/useBalances";
 import useAggregator from "../hooks/useAggregator";
+import useGetWeth from "../hooks/useGetWeth";
 import Link from "next/link";
 
 const ETHMainnerChainID = 31337;
@@ -25,6 +26,7 @@ export default function Home() {
   } = useWeb3Context() as IWeb3Context;
 
   const { deposit, withdraw, rebalance, protocolAddress, loading } = useAggregator();
+  const { getWeth } = useGetWeth();
   const { aggregatorBalance, walletBalance } = useBalances();
   const [amountStr, setAmountStr] = useState<string>("");
 
@@ -39,6 +41,9 @@ export default function Home() {
     deposit(parseInt(amountStr));
   };
 
+  const handleGetWeth = async (e: any) => {
+    getWeth(parseInt(amountStr));
+  };
 
   return (
     <div>
@@ -93,7 +98,7 @@ export default function Home() {
               <Text>Deposited: {aggregatorBalance ? aggregatorBalance : "Loading..."}</Text>
             </HStack>
             <Box
-              onSubmit={handleDeposit}
+              onSubmit={handleGetWeth}
               as="form"
               display="flex"
               flexDirection="column"
@@ -108,6 +113,26 @@ export default function Home() {
                 value={amountStr}
                 onChange={(e) => setAmountStr(e.target.value)}
               />
+              <Button
+                type="submit"
+                variant="solid"
+                bg="yellow.400"
+                colorScheme="green"
+                color="white"
+                gap={2}
+                isLoading={loading}
+              >
+                <Icon as={MdCheck} />
+                Get WETH
+              </Button>
+            </Box>
+            <Box
+              onSubmit={handleDeposit}
+              as="form"
+              display="flex"
+              flexDirection="column"
+              gap={4}
+            >
               <Button
                 type="submit"
                 variant="solid"
