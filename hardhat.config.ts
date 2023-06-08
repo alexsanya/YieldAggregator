@@ -6,9 +6,9 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
+      chainId: 31337,
       forking: {
-        url: "https://eth-mainnet.g.alchemy.com/v2/jkGAsM46sQzSvCIw2r1QPqmRtU_tfuSX",
-        blocknumber: 17402757
+        url: "https://eth-mainnet.g.alchemy.com/v2/jkGAsM46sQzSvCIw2r1QPqmRtU_tfuSX"
       }
     },
     localhost: {

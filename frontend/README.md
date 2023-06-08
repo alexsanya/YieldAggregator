@@ -1,38 +1,66 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
 ## Getting Started
 
-First, run the development server:
+Install dependencies for hardhat and frontend:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+npm install
+cd ./frontend
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Launch local node - fork from mainnet - this should always run in background:
+```bash
+npm run node
+```
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+Open another terminal and deploy contract:
+```bash
+npm run deploy
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+Take contract address and paste it as parameter `YIELD_AGGREGATOR_ADDRESS` into `frontend/src/config.ts`
+```
+> yield-aggregator@1.0.0 deploy
+> npx hardhat run scripts/deploy.ts --network localhost
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+Aggregator contract address: 0xAe2563b4315469bF6bdD41A6ea26157dE57Ed94e
+Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+frontend/src/config.ts:
+```
+export const WETH_MAINNET_ADDRESS = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+export const YIELD_AGGREGATOR_ADDRESS = "0x687bB6c57915aa2529EfC7D2a26668855e022fAE";
+```
 
-## Learn More
+Start frontend in another terminal:
+```bash
+npm run ui
+```
 
-To learn more about Next.js, take a look at the following resources:
+Import deployer private key to metamask - the Account #0:
+```
+> yield-aggregator@1.0.0 node
+> npx hardhat node
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Started HTTP and WebSocket JSON-RPC server at http://127.0.0.1:8545/
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Accounts
+========
 
-## Deploy on Vercel
+WARNING: These accounts, and their private keys, are publicly known.
+Any funds sent to them on Mainnet or any other live network WILL BE LOST.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (10000 ETH)
+Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Add mainnet-fork network to Metamask:
+![Screenshot](mainnetFork.png)
+
+
+Open browser at `http://localhost:3000/`, choose mainnet-fork network in Metamask and Account #0
+
+Connect Metamask accound with Dapp and you ready to go!
+
+
