@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useWeb3Context } from "../context/Web3Context";
 import useWethContract from "./useWethContract";
 import useYieldAggregatorContract from "./useYieldAggregatorContract";
 import { YIELD_AGGREGATOR_ADDRESS, USER_ADDRESS } from "../config";
 
 const useBalances = () => {
+  const { state } = useWeb3Context() as IWeb3Context;
   const weth = useWethContract();
   const aggregator = useYieldAggregatorContract();
   const [aggregatorBalance, setAggregatorBalance] = useState<string | null>(null);
@@ -22,7 +24,7 @@ const useBalances = () => {
 
     const getWalletBalance = async () => {
       try {
-        const response = await weth.balanceOf(USER_ADDRESS);
+        const response = await weth.balanceOf(state.address);
         setWalletBalance(response.toString());
       } catch {}
     }

@@ -4,6 +4,9 @@
   "description": "home task for Dapp University",
   "main": "index.js",
   "scripts": {
+    "node": "npx hardhat node",
+    "deploy": "npx hardhat run scripts/deploy.ts --network localhost",
+    "ui": "cd ./frontend; npm run dev",
     "test": "npm run test"
   },
   "keywords": [

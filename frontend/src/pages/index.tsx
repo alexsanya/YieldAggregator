@@ -77,7 +77,6 @@ export default function Home() {
                 gap={2}
                 color="white"
               >
-                <Icon />
                 Connect wallet
               </Button>
             ) : (
@@ -89,7 +88,6 @@ export default function Home() {
                 color="white"
                 gap={2}
               >
-                <Icon />
                 Disconnect
               </Button>
             )}
@@ -139,7 +137,6 @@ export default function Home() {
                 gap={2}
                 isLoading={loading}
               >
-                <Icon as={MdCheck} />
                 Get WETH
               </Button>
             </Box>
@@ -159,7 +156,6 @@ export default function Home() {
                 gap={2}
                 isLoading={loading}
               >
-                <Icon as={MdCheck} />
                 Deposit
               </Button>
             </Box>
@@ -179,7 +175,6 @@ export default function Home() {
                 gap={2}
                 isLoading={loading}
               >
-                <Icon as={MdCheck} />
                 Withdraw
               </Button>
             </Box>
@@ -199,7 +194,6 @@ export default function Home() {
                 gap={2}
                 isLoading={loading}
               >
-                <Icon as={MdCheck} />
                 Rebalance
               </Button>
             </Box>

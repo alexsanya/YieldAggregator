@@ -8,7 +8,11 @@ async function main() {
   await aggregator.deployed();
 
   console.log(
-    `Aggregator deployed to ${aggregator.address}`
+    `Aggregator contract address: ${aggregator.address}`
+  );
+  const [deployer] = await ethers.getSigners();
+  console.log(
+    `Deployer: ${deployer.address}`
   );
 }
 
