@@ -3,12 +3,14 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 import "@aave/core-v3/contracts/interfaces/IPool.sol";
 import "./IComet.sol";
 
 contract Aggregator is Ownable {
-  enum Market{ AAVE, COMPOUND, NONE }
+  using SafeERC20 for IERC20;
+  enum Market{ AAVE, COMPOUND }
   enum Protocol{ AAVE, COMPOUND, NONE }
 
   event Deposit(Market market, uint256 amount);
@@ -34,7 +36,7 @@ contract Aggregator is Ownable {
 
   function deposit(Market _market, uint256 weth_amount) external onlyOwner {
     require(fundsDepositedInto == Protocol.NONE, "You should withdraw before re-deposit");
-    weth.transferFrom(msg.sender, address(this), weth_amount);
+    weth.safeTransferFrom(msg.sender, address(this), weth_amount);
     if (_market == Market.AAVE) {
       _deposit_to_aave(weth_amount);
     } else {
@@ -69,13 +71,13 @@ contract Aggregator is Ownable {
     require(fundsDepositedInto != Protocol.NONE, "Nothing to withdraw");
     if (fundsDepositedInto == Protocol.COMPOUND) {
       uint256 amount = _withdraw_from_compound();
-      weth.transfer(msg.sender, amount);
+      weth.safeTransfer(msg.sender, amount);
       fundsDepositedInto = Protocol.NONE;
       emit Withdrawal(Market.COMPOUND, amount);
       return amount;
     } else {
       uint256 amount = _withdraw_from_aave();
-      weth.transfer(msg.sender, amount);
+      weth.safeTransfer(msg.sender, amount);
       fundsDepositedInto = Protocol.NONE;
       emit Withdrawal(Market.AAVE, amount);
       return amount;

@@ -14,6 +14,8 @@ export type { IPoolAddressesProvider } from "./@aave/core-v3/contracts/interface
 export { IPoolAddressesProvider__factory } from "./factories/@aave/core-v3/contracts/interfaces/IPoolAddressesProvider__factory";
 export type { Ownable } from "./@openzeppelin/contracts/access/Ownable";
 export { Ownable__factory } from "./factories/@openzeppelin/contracts/access/Ownable__factory";
+export type { IERC20Permit } from "./@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit";
+export { IERC20Permit__factory } from "./factories/@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit__factory";
 export type { IERC20 } from "./@openzeppelin/contracts/token/ERC20/IERC20";
 export { IERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/IERC20__factory";
 export type { Aggregator } from "./contracts/Aggregator";
