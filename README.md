@@ -1,3 +1,7 @@
+## Screencast
+[ Link ]
+
+
 ## Getting Started
 
 Install dependencies for hardhat and frontend:
@@ -56,7 +60,7 @@ Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 ```
 
 Add mainnet-fork network to Metamask:
-![Screenshot](mainnetFork.png)
+![Screenshot](mainnet-fork.png)
 
 
 Open browser at `http://localhost:3000/`, choose mainnet-fork network in Metamask and Account #0
